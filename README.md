@@ -1,9 +1,6 @@
 # Learn Terraform - Provision an EKS Cluster
 
-This repo is a companion repo to the [Provision an EKS Cluster learn guide](https://learn.hashicorp.com/terraform/kubernetes/provision-eks-cluster), containing
-Terraform configuration files to provision an EKS cluster on AWS.
-
-After installing the AWS CLI. Configure it to use your credentials.
+configure o aws cli 
 
 ```shell
 $ aws configure
@@ -13,10 +10,7 @@ Default region name [None]: <YOUR_AWS_REGION>
 Default output format [None]: json
 ```
 
-This enables Terraform access to the configuration file and performs operations on your behalf with these security credentials.
-
-After you've done this, initalize your Terraform workspace, which will download 
-the provider and initialize it with the values provided in the `terraform.tfvars` file.
+rode o comando abaixo pra iniciar
 
 ```shell
 $ terraform init
@@ -41,8 +35,7 @@ Initializing provider plugins...
 Terraform has been successfully initialized!
 ```
 
-Then, provision your EKS cluster by running `terraform apply`. This will 
-take approximately 10 minutes.
+rode o comando abaixo pra provisionar 
 
 ```shell
 $ terraform apply
@@ -97,50 +90,45 @@ users:
 region = us-east-2
 ```
 
-## Configure kubectl
+## configurando o  kubectl
 
-To configure kubetcl, you need both [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) and [AWS IAM Authenticator](https://docs.aws.amazon.com/eks/latest/userguide/install-aws-iam-authenticator.html).
+para configurar kubetcl, voce precisará do [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) e [AWS IAM Authenticator](https://docs.aws.amazon.com/eks/latest/userguide/install-aws-iam-authenticator.html).
 
-The following command will get the access credentials for your cluster and automatically
-configure `kubectl`.
+rode o comando abaixo para configurar o kubeclt
+
 
 ```shell
 $ aws eks --region $(terraform output region) update-kubeconfig --name $(terraform output cluster_name)
 ```
 
-The
-[Kubernetes cluster name](https://github.com/hashicorp/learn-terraform-eks/blob/master/outputs.tf#L26)
-and [region](https://github.com/hashicorp/learn-terraform-eks/blob/master/outputs.tf#L21)
- correspond to the output variables showed after the successful Terraform run.
-
-You can view these outputs again by running:
+rode o comando abaixo para ver a saida do terraform
 
 ```shell
 $ terraform output
 ```
 
-## Deploy and access Kubernetes Dashboard
+## Deploy e acesso ao Kubernetes Dashboard
 
-To verify that your cluster is configured correctly and running, you will install a Kubernetes dashboard and navigate to it in your local browser. 
+espere o cluster subir para essa etapa 
 
 ### Deploy Kubernetes Metrics Server
 
-The Kubernetes Metrics Server, used to gether metrics such as cluster CPU and memory usage
-over time, is not deployed by default in EKS clusters.
+The Kubernetes Metrics Server, usa um coletetor de metricas do cluster que pega CPU e memory usage
 
-Download and unzip the metrics server by running the following command.
+
+Faça o Download e unzip rodando esse comando
 
 ```shell
 $ wget -O v0.3.6.tar.gz https://codeload.github.com/kubernetes-sigs/metrics-server/tar.gz/v0.3.6 && tar -xzf v0.3.6.tar.gz
 ```
 
-Deploy the metrics server to the cluster by running the following command.
+fazendo o deploy
 
 ```shell
 $ kubectl apply -f metrics-server-0.3.6/deploy/1.8+/
 ```
 
-Verify that the metrics server has been deployed. If successful, you should see something like this.
+verificar se o deploy foi feito
 
 ```shell
 $ kubectl get deployment metrics-server -n kube-system
@@ -150,7 +138,7 @@ metrics-server   1/1     1            1           4s
 
 ### Deploy Kubernetes Dashboard
 
-The following command will schedule the resources necessary for the dashboard.
+rode o comando para subir o dashboard
 
 ```shell
 $ kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta8/aio/deploy/recommended.yaml
@@ -171,14 +159,14 @@ service/dashboard-metrics-scraper created
 deployment.apps/dashboard-metrics-scraper created
 ```
 
-Now, create a proxy server that will allow you to navigate to the dashboard 
-from the browser on your local machine. This will continue running until you stop the process by pressing `CTRL + C`.
+agora vamos navegar no dashboard na sua maquina(local)
+abra o browser e rode o comando abaixo para parar rode  `CTRL + C`.
 
 ```shell
 $ kubectl proxy
 ```
 
-You should be able to access the Kubernetes dashboard [here](http://127.0.0.1:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/).
+Voce pode acessar atraves desse link [here](http://127.0.0.1:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/).
 
 ```plaintext
 http://127.0.0.1:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
@@ -186,11 +174,10 @@ http://127.0.0.1:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kube
 
 ## Authenticate the dashboard
 
-To use the Kubernetes dashboard, you need to provide an authorization token. 
-Authenticating using `kubeconfig` is **not** an option. You can read more about
-it in the [Kubernetes documentation](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/#accessing-the-dashboard-ui).
+Para usasr o dashboard do ks8 vc precisa provisionar o token 
+usando `kubeconfig`  **isso não é opcional** . Documentação sobre [Kubernetes documentation](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/#accessing-the-dashboard-ui).
 
-Generate the token in another terminal (do not close the `kubectl proxy` process).
+gere o token em outro terminal (nao feche o processo do `kubectl proxy`).
 
 ```shell
 $ kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep service-controller-token | awk '{print $1}')
@@ -210,7 +197,7 @@ namespace:  11 bytes
 token:      eyJhbGciOiJSUzI1NiIsImtpZCI6I...
 ```
 
-Select "Token" on the Dashboard UI then copy and paste the entire token you 
-receive into the 
+Selecione "Token" no Dashboard GUI e copie e cole o token gerado no terminal 
+agora será possivel acessar
 [dashboard authentication screen](http://127.0.0.1:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/) 
-to sign in. You are now signed in to the dashboard for your Kubernetes cluster.
+
