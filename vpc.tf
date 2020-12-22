@@ -3,11 +3,6 @@ variable "region" {
   description = "AWS region"
 }
 
-provider "aws" {
-  version = ">= 2.28.1"
-  region  = "sa-east-1"
-}
-
 data "aws_availability_zones" "available" {}
 
 locals {
